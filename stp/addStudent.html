@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Etudiants</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1 align="center">Nouvel étudiant</h1>
+    <table class="table table-striped">
+        <tbody>
+            <form class="student">
+                <tr>
+                    <td>Nom</td>
+                    <td><input type="text" name="nom" /></td>
+                </tr>
+                <tr>
+                    <td>Prénom</td>
+                    <td><input type="text" name="prenom" /></td>
+                </tr>
+                <tr>
+                    <td>Section</td>
+                    <td><input type="text" name="section" /></td>
+                </tr>
+                <tr>
+                    <td>Choisissez un nom d'utilisateur</td>
+                    <td><input type="text" name="user" /></td>
+                </tr>
+                <tr>
+                    <td>Chosissez un mot de passe</td>
+                    <td><input type="password" name="pwd" /></td>
+                </tr>
+            </form>
+            <tr>
+                <td></td>
+                <td>
+                    <button onclick="addStudent()">Enregistrer</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        // POST REQUEST
+        function addStudent() {
+            var req;
+            req = new XMLHttpRequest();
+            req.open("POST", './api/etudiants.php', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+            var $form = $("form.student");
+            var studentData = getFormData($form);
+            console.log(JSON.stringify(studentData));
+            req.send(JSON.stringify(studentData));
+            req.onload = function () {
+                    var json = JSON.parse(req.responseText);
+                    console.log(json);
+                };
+            window.open('./', '_self');
+            }
+
+        // Récupération des données du formulaire 
+        function getFormData($form) {
+                var unindexed_array = $form.serializeArray();
+                var indexed_array = {};
+                $.map(unindexed_array, function (n, i) {
+                    indexed_array[n['name']] = n['value'];
+                });
+                return indexed_array;
+            }
+    </script>
+</body>
+
+</html>

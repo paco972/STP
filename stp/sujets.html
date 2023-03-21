@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>Sujets</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+            <h2 align="center">Liste des sujets</h2><br/>
+            <h4 id="welcome">Bienvenue, </h4><br/>
+            <h4>Cliquer sur le titre pour voir le sujet et lancer le TP</h4><br/>
+            <table class="table table-striped">
+			<thead>
+                <th>Titre</th>
+				<th>Difficulté</th>
+				<th>Durée estimée</th>
+			</thead>
+			<tbody id="tableau">
+                <script>
+                    //GET REQUEST
+                    document.addEventListener('DOMContentLoaded',function(){      
+                        var url_string = window.location;
+                        var url = new URL(url_string);
+                        // var idEtudiant = url.searchParams.get("idEtudiant");
+                        var idEtudiant = sessionStorage.getItem("idEtudiant");
+                        var reqEtudiant;
+                        reqEtudiant = new XMLHttpRequest();
+                        reqEtudiant.open("GET", './api/etudiants.php?id=' + idEtudiant,true);
+                        reqEtudiant.send();        
+                        reqEtudiant.onload=function(){
+                            var json=JSON.parse(reqEtudiant.responseText);
+                            document.getElementById('welcome').innerHTML = "Bienvenue " + json['prenom'] + " " + json['nom'];         
+                        };
+
+                        var reqTP;
+                        reqTP = new XMLHttpRequest();
+                        reqTP.open("GET", './api/tp.php',true);
+                        reqTP.send();        
+                        reqTP.onload=function(){
+                            var json=JSON.parse(reqTP.responseText);
+                            var html = "";
+                            //loop and display data
+                            json.forEach(function(val) {
+                                html += "<tr>";
+                                html += "<td><a href='./sujet.html?idTP=" + val['id'] + "'>" + val['titre'] + "</a></td>";
+                                html += "<td>" + val['difficulte'] + "/5</td>";
+                                html += "<td>" + val['duree'] + " h</td>";
+                                html += "</tr>";
+                            });
+                            //append in tbody
+                            document.getElementById('tableau').innerHTML=html;         
+                        };
+                    });
+                </script>
+			</tbody>
+		</table>
+	</body>
+</html>

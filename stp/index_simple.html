@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>Etudiants</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+    <h2 align="center">Liste des étudiants</h2>
+		<table class="table table-striped">
+			<thead>
+                <th>Nom</th>
+				<th>Prénom</th>
+				<th>Section</th>
+			</thead>
+			<tbody id="tableau">
+                <script>
+                    //GET REQUEST
+                    document.addEventListener('DOMContentLoaded',function(){      
+                        var req;
+                        req = new XMLHttpRequest();
+                        req.open("GET", './api/etudiants',true);
+                        req.send();
+        
+                        req.onload=function(){
+                            var json=JSON.parse(req.responseText);
+                            var html = "";
+                            //loop and display data
+                            json.forEach(function(val) {
+                                html += "<tr>";
+                                html += "<td>" + val['nom'] + "</td>";
+                                html += "<td>" + val['prenom'] + "</td>";
+                                html += "<td>" + val['section'] + "</td>";
+                                html += "</tr>";
+                            });
+                            //append in tbody
+                            document.getElementById('tableau').innerHTML=html;         
+                        };
+                    });
+                </script>
+			</tbody>
+		</table>
+	</body>
+</html>

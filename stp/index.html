@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Etudiants</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1 align="center">Serveur de TP en distanciel</h1>
+    <table class="table table-striped">
+        <tbody>
+            <form class="student">
+                <tr>
+                    <td>Utilisateur</td>
+                    <td><input type="text" name="user" /></td>
+                </tr>
+                <tr>
+                    <td>Mot de passe</td>
+                    <td><input type="password" name="pwd" /></td>
+                </tr>
+            </form>
+            <tr>
+                <td></td>
+                <td>
+                    <button onclick="connect()">Connexion</button>
+                    <button onclick="addStudent()">Inscription</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+        // POST REQUEST
+        function connect() {
+            var req;
+            req = new XMLHttpRequest();
+            req.open("POST", './api/login.php', true);
+            req.setRequestHeader('Content-Type', 'application/json');
+            var $form = $("form.student");
+            var studentData = getFormData($form);
+            // console.log(JSON.stringify(studentData));
+            req.send(JSON.stringify(studentData));
+            req.onload = function () {
+                    var json = JSON.parse(req.responseText);
+                    console.log(json);
+                    if ((idEtudiant = json['id']) != 0) {
+                        sessionStorage.setItem("idEtudiant", idEtudiant);
+                        window.open('./sujets.html', '_self');
+                    }
+                    else {
+                        alert("Erreur d'identifiant ou de mot de passe");
+                    }
+                };
+            }
+
+        // Récupération des données du formulaire 
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
+            return indexed_array;
+        }
+
+        // Lancement de la page d'inscription 
+        function addStudent() {
+            window.open('./addStudent.html', '_self');
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>Etudiants</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body>
+    <h2 align="center">Liste des étudiants</h2>
+		<table class="table table-striped">
+			<thead>
+                <th>Nom</th>
+				<th>Prénom</th>
+				<th>Section</th>
+			</thead>
+			<tbody id="tableau">
+                <script>
+                    //GET REQUEST
+                    document.addEventListener('DOMContentLoaded',function(){      
+                        var req;
+                        req = new XMLHttpRequest();
+                        req.open("GET", './api/etudiants.php',true);
+                        req.send();
+        
+                        req.onload=function(){
+                            var json=JSON.parse(req.responseText);
+                            var html = "";
+                            //loop and display data
+                            json.forEach(function(val) {
+                                html += "<tr>";
+                                html += "<td>" + val['nom'] + "</td>";
+                                html += "<td>" + val['prenom'] + "</td>";
+                                html += "<td>" + val['section'] + "</td>";
+                                html += '<td><button onclick="updateStudent(' + val['id'] + ')">Modifier</button></td>';
+                                html += '<td><button onclick="deleteStudent(' + val['id'] + ')">Supprimer</button></td>';
+                                html += "</tr>";
+                            });
+                            html += '<tr><button onclick="addStudent()">Ajouter un nouvel étudiant</button></tr>';
+                            //append in tbody
+                            document.getElementById('tableau').innerHTML=html;         
+                        };
+                    });
+
+                    function addStudent() {
+                        console.log('Ajout d\'un nouvel étudiant');
+                        window.open('./addStudent.html', '_self');
+                    }
+
+                    function updateStudent(id) {
+                        console.log('Mise à jour de : ' + id);
+                        window.open('./updateStudent.html?id=' + id, '_self');
+                    }
+
+                    function deleteStudent(id) {
+                        console.log('Suppression de : ' + id);
+                        var req;
+                        req = new XMLHttpRequest();
+                        req.open("DELETE", './api/etudiant/' + id,true);
+                        req.send();
+                        req.onload = function () {
+                            var json = JSON.parse(req.responseText);
+                            console.log(json);
+                        };
+                        window.open('./', '_self');
+                    }
+                </script>
+			</tbody>
+		</table>
+	</body>
+</html>

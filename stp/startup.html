@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Startup</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <h4 id="welcome">Étudiant : </h4><br/>
+  <h4 id="connect">Vous êtes connecté à la maquette</h4><br/>
+    <h4>Cliquer sur les applications à utiliser pour ouvrir un nouvel onglet :</h4><br/>
+  <ul>
+    <li>
+      <div name="shellinabox"></div>
+    </li>
+    <li>
+      <div name="nodered"></div>
+    </li>
+    <li>
+      <div name="grafana"></div>
+    </li>
+    <li>
+      <div name="deconnexion">
+        <btn class="btn btn-dark btn-large" onclick="deconnexion()">Deconnexion</btn>
+        <br/>Se déconnecter et fermer les applications ouvertes <br/><br/>
+      </div>
+    </li>
+  </ul>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var url_string = window.location;
+    var url = new URL(url_string);
+    var id = url.searchParams.get("idMaquette");
+    var domaine = "snir972.ddns.net";
+    var portshellinabox = "420";
+    var portnodered = "188";
+    var portgrafana = "300";
+    var idEtudiant = sessionStorage.getItem("idEtudiant");
+
+    var boutonShellinabox = '<a class="btn btn-primary btn-large" href="javascript:w1=window.open(\'https://'+ domaine +':'+ portshellinabox + id +'\',\'_blank\')">Shell In A Box</a>';
+    var boutonNodeRed = '<a class="btn btn-danger btn-large" href="javascript:w2=window.open(\'http://'+ domaine +':'+ portnodered + id +'\',\'_blank\')">Node Red</a>';
+    var boutonGrafana = '<a class="btn btn-success btn-large" href="javascript:w3=window.open(\'http://'+ domaine +':'+ portgrafana + id +'\',\'_blank\')">Grafana</a>';
+    reqEtudiant = new XMLHttpRequest();
+    reqEtudiant.open("GET", './api/etudiants.php?id=' + idEtudiant,true);
+    reqEtudiant.send();
+    reqEtudiant.onload=function(){
+        var json=JSON.parse(reqEtudiant.responseText);
+        document.getElementById('welcome').innerHTML = "Étudiant : " + json['prenom'] + " " + json['nom'];
+    };
+    document.getElementById('connect').innerHTML = "Vous êtes connecté à la maquette N° " + id;
+    document.getElementsByName("shellinabox")[0].innerHTML = boutonShellinabox 
+        + "<br/>Session shell<br/><br/>";
+    document.getElementsByName("nodered")[0].innerHTML = boutonNodeRed
+        + "<br/>Développement d'applications<br/><br/>";
+    document.getElementsByName("grafana")[0].innerHTML = boutonGrafana
+        + "<br/>Affichage de graphiques<br/><br/>";
+  });
+  function deconnexion()
+  {
+    var url_string = window.location;
+    var url = new URL(url_string);
+    var id2 = url.searchParams.get("idMaquette");
+    var reqMaq2;
+    reqMaq2 = new XMLHttpRequest();
+    reqMaq2.open("GET", './api/maquette.php?id=' + id2, true);
+    reqMaq2.send();
+    reqMaq2.onload = function ()
+    {
+      var json = JSON.parse(reqMaq2.responseText);
+      json.disponible = "1";
+      var reqMaq3;
+      window.open('./sujets.html', '_self');
+      reqMaq3 = new XMLHttpRequest();
+      reqMaq3.open("PUT", './api/maquette.php?id=' + id2, true);
+      reqMaq3.setRequestHeader('Content-type','application/json; charset=utf-8');
+      var json2 = JSON.stringify(json);
+      reqMaq3.send(json2);
+      reqMaq3.onload = function ()
+      {};
+    };
+    try {
+      w1.close();
+      w2.close();
+      w3.close();
+      w4.close();
+    } catch (e) {
+
+    }
+  }
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<html>
+<head>
+  <title>Sujet de TP</title>
+  <!-- Bootstrap -->
+  <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <div>
+    <h3 align="center" name="titre"></h3>
+  </div>
+  <div>
+    <a class="btn btn-primary btn-large" align="center" onclick="startup()">Démarrer ce TP</a>
+  </div>
+  <div>
+    <iframe id="sujet" src="./sujets/TCE_TP1.pdf" width="100%" height="100%" align="center">
+    </iframe>
+  </div>
+  <script>
+    //GET REQUEST
+    document.addEventListener('DOMContentLoaded', function () {
+      var url_string = window.location;
+      var url = new URL(url_string);
+      var idTP = url.searchParams.get("idTP");
+
+      var reqTP;
+      reqTP = new XMLHttpRequest();
+      reqTP.open("GET", './api/tp.php?id=' + idTP, true);
+      reqTP.send();
+
+      reqTP.onload = function () {
+        var json = JSON.parse(reqTP.responseText);
+        var titre = json["titre"];
+        var sujet = json["urlSujet"];
+        document.getElementsByName("titre")[0].innerText = titre;
+        document.getElementById("sujet").src = sujet;
+      };
+    });
+
+    function startup() {
+      var reqMaquette;
+      var idMaquette = 0;
+      // Recherche d'une maquette disponible
+      reqMaquette = new XMLHttpRequest();
+      reqMaquette.open("GET", './api/maquette.php', true);
+      reqMaquette.send();
+      reqMaquette.onload = function () {
+        var json = JSON.parse(reqMaquette.responseText);
+        json.forEach(function(val) {
+          if (val['disponible'] == "1") {
+            idMaquette = val['id'];
+          }
+        });
+        if (idMaquette != 0) {
+          // Récupération des infos de la maquette
+          reqMaquette.open("GET", './api/maquette.php?id='+idMaquette, true);
+          reqMaquette.send();
+          reqMaquette.onload = function () {
+            var json = JSON.parse(reqMaquette.responseText);
+
+            // Mise à jour avec disponibilité = 0
+            json.disponible = "0";
+            reqMaquette2 = new XMLHttpRequest();
+            reqMaquette2.open("PUT", './api/maquette.php?id='+idMaquette, true);
+            reqMaquette2.setRequestHeader('Content-type','application/json; charset=utf-8');
+            var json2 = JSON.stringify(json);
+            reqMaquette2.send(json2);
+            reqMaquette2.onload = function () {
+              var json = JSON.parse(reqMaquette2.responseText);
+            }
+          // Démarrage du TP
+          window.open('./startup.html?idMaquette=' + idMaquette, '_blank');
+          }
+        }
+        else {
+          // Affichage de la page 'Pas de maquette disponible'
+          window.open('./error.html', '_self');
+        }
+      };
+    }
+  </script>
+</body>
+</html>
